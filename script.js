@@ -1,81 +1,78 @@
-const choices = ["rock", "paper", "scissor"]
+const choices = ['Rock', "Paper", "Scissors"]
 
-let humanScore = 0;
-let computerScore = 0;
+const roundCountText = document.querySelector('.round-count')
+const playerScoreText = document.querySelector('.player-score')
+const cpuScoreText = document.querySelector('.cpu-score')
+const playerChoiceText = document.querySelector('.player-choice')
+const cpuChoiceText = document.querySelector('.cpu-choice')
+const resultText = document.querySelector('.result')
 
-function getComputerChoice() {
+const choiceButtons = document.querySelectorAll('.choice-play')
 
-    const choice = choices[Math.round(Math.random() * (choices.length - 1))];
+const canvas = document.querySelector('#confetti')
+const jsConfetti = new JSConfetti(canvas)
 
-   return choice;
+
+let roundCount = 0
+let playerScore = 0
+let cpuScore = 0
+
+let playerCurrentChoice = ''
+let cpuCurrentChoice = ''
+
+let finished = false
+
+choiceButtons.forEach(element => {
+    element.addEventListener('click', playGame)
+});
+
+async function playGame(event) {
+    if (finished) return
+
+    roundCount++
+
+    playerCurrentChoice = event.target.textContent
+    const randomCpu = Math.floor(Math.random() * choices.length)
+    cpuCurrentChoice = choices[randomCpu]
+    SetScore()
+    applyUI()
+
+    if (playerScore != cpuScore && (playerScore == 5 || cpuScore == 5)) {
+        finished = true
+        resultText.textContent = playerScore > cpuScore ? "Player Won!" : "Cpu Won!"
+        await jsConfetti.addConfetti({
+            emojis: ['✋', '✊', '✌', '🌟', '✨']
+        })
+        playerScore = 0
+        cpuScore = 0
+        roundCount = 0
+        resultText.textContent = "Play!"
+        finished = false
+    }
 }
 
-function getHumanChoice() {
-    return prompt("Enter valid choice: ");
+function applyUI() {
+    roundCountText.textContent = roundCount
+    playerScoreText.textContent = playerScore
+    cpuScoreText.textContent = cpuScore
+    playerChoiceText.textContent = playerCurrentChoice
+    cpuChoiceText.textContent = cpuCurrentChoice
 }
 
-let round = 0;
-
-function playRound(computerChoice, humanChoice) {
-    if(computerChoice === humanChoice) {
-        console.log("draw");
-    } else {
-        if(computerChoice === "rock") {
-            switch(humanChoice){
-                case "paper":
-                    console.log("human wins");
-                    humanScore++;
-                    break;
-                case "scissor":
-                    console.log("computer wins");
-                    computerScore++;
-                    break;
-            }
-        }
-        else if (computerChoice === "paper") {
-            switch(humanChoice){
-                case "scissor":
-                    console.log("human wins");
-                    humanScore++;
-                    break;
-                case "rock":
-                    console.log("computer wins");
-                    computerScore++;
-                    break;
-            }
-        }
-        else if (computerChoice === "scissor") {
-            switch(humanChoice){
-                case "rock":
-                    console.log("human wins");
-                    humanScore++;
-                    break;
-                case "paper":
-                    console.log("computer wins");
-                    computerScore++;
-                    break;
-            }
+function SetScore() {
+    if (playerCurrentChoice != '') {
+        switch (playerCurrentChoice) {
+            case cpuCurrentChoice:
+                break;
+            case 'Rock':
+                cpuCurrentChoice == 'Scissors' ? playerScore++ : cpuScore++;
+                break;
+            case 'Paper':
+                cpuCurrentChoice == 'Rock' ? playerScore++ : cpuScore++;
+               break;
+            case 'Scissors':
+                cpuCurrentChoice == 'Paper' ? playerScore++ : cpuScore++;
+                break;
         }
     }
-    console.log("Human Score: " + humanScore);
-    console.log("Computer Score: " + computerScore);
-
-    round++;
 }
-function playGame() {
-   for (let index = 0; index < 5; index++) {
-    playRound(getComputerChoice(), getHumanChoice());
-   }
-
-   if(humanScore === computerScore) {
-    console.log("It's a tie!!!");
-   }
-
-   if(humanScore > computerScore) {
-    console.log("Human wins!!!");
-   } else {
-    console.log("Computer wins!!!");
-   }
-}
-
-playGame();
